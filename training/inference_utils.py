@@ -45,18 +45,13 @@ def save_3d_shape(mesh_v_list, mesh_f_list, root, idx, latents_list):
     mesh_dir = os.path.join(root, 'mesh_pred')
     os.makedirs(mesh_dir, exist_ok=True)
 
-    file_path = os.path.join(mesh_dir, 'latents.csv')
-    latents_file = open(file_path, 'a')
-
     for i_mesh in range(n_mesh):
         mesh_v = mesh_v_list[i_mesh]
         mesh_f = mesh_f_list[i_mesh]
         mesh_name = os.path.join(mesh_dir, '%07d_%02d.obj' % (idx, i_mesh))
-        latents_file.write('%07d_%02d' % (idx, i_mesh) + ' ')
-        np.savetxt(latents_file, latents_list[i_mesh], delimiter=',')
+        file_path = os.path.join(mesh_dir, '%07d_%02d' % (idx, i_mesh))
+        np.save(file_path, latents_list[i_mesh])
         save_obj(mesh_v, mesh_f, mesh_name)
-    
-    latents_file.close()
 
 
 def gen_swap(ws_geo_list, ws_tex_list, camera, generator, save_path, gen_mesh=False, ):
