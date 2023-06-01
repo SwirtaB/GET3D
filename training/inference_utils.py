@@ -40,15 +40,23 @@ def save_image_grid(img, fname, drange, grid_size):
     return img
 
 
-def save_3d_shape(mesh_v_list, mesh_f_list, root, idx):
+def save_3d_shape(mesh_v_list, mesh_f_list, root, idx, latents_list):
     n_mesh = len(mesh_f_list)
     mesh_dir = os.path.join(root, 'mesh_pred')
     os.makedirs(mesh_dir, exist_ok=True)
+
+    file_path = os.path.join(mesh_dir, 'latents.csv')
+    latents_file = open(file_path, 'a')
+
     for i_mesh in range(n_mesh):
         mesh_v = mesh_v_list[i_mesh]
         mesh_f = mesh_f_list[i_mesh]
         mesh_name = os.path.join(mesh_dir, '%07d_%02d.obj' % (idx, i_mesh))
+        latents_file.write('%07d_%02d' % (idx, i_mesh) + ', ')
+        np.savetxt(latents_file, latents_list[i_mesh])
         save_obj(mesh_v, mesh_f, mesh_name)
+    
+    latents_file.close()
 
 
 def gen_swap(ws_geo_list, ws_tex_list, camera, generator, save_path, gen_mesh=False, ):
@@ -178,14 +186,16 @@ def save_visualization(
             images_list = []
             mesh_v_list = []
             mesh_f_list = []
+            latents_list = []
             for z, geo_z, c in zip(grid_tex_z, grid_z, grid_c):
                 # FIXME Tutaj możemy wyciągnąć mesh z GET3D i użyć do treningu sieci tłumaczącej
-                img, mask, sdf, deformation, v_deformed, mesh_v, mesh_f, gen_camera, img_wo_light, tex_hard_mask = G_ema.generate_3d(
+                img, mask, sdf, deformation, v_deformed, mesh_v, mesh_f, gen_camera, img_wo_light, tex_hard_mask, ws_geo = G_ema.generate_3d(
                     z=z, geo_z=geo_z, c=c, noise_mode='const',
                     generate_no_light=True, truncation_psi=0.7, camera=camera)
                 rgb_img = img[:, :3]
                 save_img = torch.cat([rgb_img, mask.permute(0, 3, 1, 2).expand(-1, 3, -1, -1)], dim=-1).detach()
                 images_list.append(save_img.cpu().numpy())
+                latents_list.append(ws_geo.detach().cpu().numpy())
                 mesh_v_list.extend([v.data.cpu().numpy() for v in mesh_v])
                 mesh_f_list.extend([f.data.cpu().numpy() for f in mesh_f])
             images = np.concatenate(images_list, axis=0)
@@ -210,7 +220,7 @@ def save_visualization(
             imageio.mimsave(os.path.join(run_dir, save_gif_name), camera_img_list)
         n_shape = 10  # we only save 10 shapes to check performance
         if cur_tick % min((image_snapshot_ticks * 20), 100) == 0:
-            save_3d_shape(mesh_v_list[:n_shape], mesh_f_list[:n_shape], run_dir, cur_nimg // 100)
+            save_3d_shape(mesh_v_list[:n_shape], mesh_f_list[:n_shape], run_dir, cur_nimg // 100, latents_list)
 
 
 def save_textured_mesh_for_inference(
