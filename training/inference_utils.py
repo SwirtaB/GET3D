@@ -52,8 +52,8 @@ def save_3d_shape(mesh_v_list, mesh_f_list, root, idx, latents_list):
         mesh_v = mesh_v_list[i_mesh]
         mesh_f = mesh_f_list[i_mesh]
         mesh_name = os.path.join(mesh_dir, '%07d_%02d.obj' % (idx, i_mesh))
-        latents_file.write('%07d_%02d' % (idx, i_mesh) + ', ')
-        np.savetxt(latents_file, latents_list[i_mesh])
+        latents_file.write('%07d_%02d' % (idx, i_mesh) + ' ')
+        np.savetxt(latents_file, latents_list[i_mesh], delimiter=',')
         save_obj(mesh_v, mesh_f, mesh_name)
     
     latents_file.close()
