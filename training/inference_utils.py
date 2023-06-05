@@ -104,7 +104,7 @@ def gen_swap(ws_geo_list, ws_tex_list, camera, generator, save_path, gen_mesh=Fa
 
 
 def save_visualization_for_interpolation(
-        generator, num_sam=10, c_to_compute_w_avg=None, save_dir=None, gen_mesh=False):
+        generator, num_sam=25, c_to_compute_w_avg=None, save_dir=None, gen_mesh=False):
     '''
     Interpolate between two latent code and generate a swap between them
     :param generator: GET3D generator
@@ -131,7 +131,7 @@ def save_visualization_for_interpolation(
             ws_tex_b = ws_tex[select_tex_codes[i + 1]].unsqueeze(dim=0)
             new_ws_geo = []
             new_ws_tex = []
-            n_interpolate = 10
+            n_interpolate = 25
             for _i in range(n_interpolate):
                 w = float(_i + 1) / n_interpolate
                 w = 1 - w
@@ -213,7 +213,7 @@ def save_visualization(
             save_gif_name = f'fakes_{cur_nimg // 1000:06d}.gif'
         if save_all:
             imageio.mimsave(os.path.join(run_dir, save_gif_name), camera_img_list)
-        n_shape = 10  # we only save 10 shapes to check performance
+        n_shape = 25 # we only save 10 shapes to check performance
         if cur_tick % min((image_snapshot_ticks * 20), 100) == 0:
             save_3d_shape(mesh_v_list[:n_shape], mesh_f_list[:n_shape], run_dir, cur_nimg // 100, latents_list)
 
