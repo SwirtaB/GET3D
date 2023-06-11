@@ -682,8 +682,8 @@ class GeneratorDMTETMesh(torch.nn.Module):
             ws_geo=ws_geo,
             **synthesis_kwargs)
         if generate_no_light:
-            return img, mask, sdf, deformation, v_deformed, mesh_v, mesh_f, gen_camera, img_wo_light, tex_hard_mask
-        return img, mask, sdf, deformation, v_deformed, mesh_v, mesh_f, gen_camera, tex_hard_mask
+            return img, mask, sdf, deformation, v_deformed, mesh_v, mesh_f, gen_camera, img_wo_light, tex_hard_mask, ws_geo
+        return img, mask, sdf, deformation, v_deformed, mesh_v, mesh_f, gen_camera, tex_hard_mask, ws_geo
 
     def forward(
             self, z=None, c=None, truncation_psi=1, truncation_cutoff=None, update_emas=False, use_style_mixing=False,
